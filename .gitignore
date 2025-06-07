@@ -4,3 +4,8 @@
 /Object.class
 /Panel.class
 /SimulationObject.class
+/Entity.class
+/Tile.class
+/CollisionChecker.class
+/SPanel.class
+/bin/

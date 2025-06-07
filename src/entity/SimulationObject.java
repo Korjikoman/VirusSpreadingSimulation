@@ -1,0 +1,240 @@
+package entity;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.*;
+
+import javax.imageio.ImageIO;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import main.SPanel;
+import tools.Instruments;
+import java.util.Timer;
+import java.util.TimerTask;
+
+public class SimulationObject extends Entity{
+  
+    private int width;
+    private int height;
+    public int angle;
+    private int number;
+    
+    
+    
+    // VIRUS-related SETTINGS
+    public boolean infected = false;
+    public boolean immune = false;
+    private int recoverPercentage = 10;
+    
+    SPanel panel;
+    
+    public double getSpeed() {
+        return speed;
+    }
+    
+    public int getObjWidth () {
+    	return width;
+    }
+    
+    public void move() {
+
+        int leftBound = 0;
+        int rightBound = 768;
+        int topBound = 0;
+        int bottomBound = 576;
+        //System.out.println("--> " + x + ';' + y + " angle = " + angle);
+
+        
+        
+        // Объект не должен выходить за пределы экрана
+        if (x <= leftBound) {
+            angle = Instruments.random_number(0, 180);
+            //System.out.println("Объект вышел за левую границу --> " + x + ';' + y);
+
+        } else if (x + width >= rightBound - 1) {
+
+            angle = Instruments.random_number(180, 360);
+            //System.out.println("Объект вышел за ПРАВУЮ границу --> " + x + ';' + y);
+        } else if (y <= topBound) {
+
+            angle = Instruments.random_number(-90, 90);
+            //System.out.println("Объект вышел за ВЕРХ границу --> " + x + ';' + y);
+        } else if (y + height >= bottomBound - 1) {
+
+            angle = Instruments.random_number(90, 270);
+            //System.out.println("Объект вышел за НИЗ границу --> " + x + ';' + y);
+        }
+        
+        // checking collision
+        collisionTop = false;
+    	collisionBottom = false;
+    	collisionLeft = false;
+    	collisionRight = false;
+    	// TILE COLLISON
+        panel.cChecker.checkTile(this);
+        
+        // OBJECTS COLLISION
+        panel.cChecker.checkObjects(this);
+        if (infected) {
+        	state = "sick";
+        }
+        
+        // IF COLLISION -- 
+        if (collisionTop) {
+        	angle = Instruments.random_number(0, 360); // изменить направление
+            
+        	System.out.println(" TOP ");
+        }
+        else if (collisionBottom) {
+        	angle = Instruments.random_number(0, 360);
+        	System.out.println(" BOTTOM ");
+        }
+        else if (collisionLeft) {
+        	angle = Instruments.random_number(0, 360);
+        	System.out.println(" LEFT ");
+        }
+        else if (collisionRight) {
+        	angle = Instruments.random_number(0, 360);
+        	System.out.println(" RIGHT ");
+        }
+        
+        	float dx = (float) ((float) speed * Math.sin((double) Math.toRadians(angle)));;
+        	float dy = (float) ((float) speed * Math.cos((double) Math.toRadians(angle)));
+        	
+        	// set the direction
+        	if ( dy < 0 && dx == 0) direction = "up";
+        	if ( dy > 0 && dx == 0) direction = "down";
+        	if ( dy == 0 && dx < 0) direction = "left";
+        	if ( dy == 0 && dx > 0) direction = "right";
+        	if ( dy < 0 && dx < 0) direction = "up-left";
+        	if ( dy < 0 && dx > 0) direction = "up-right";
+        	if ( dy > 0 && dx < 0) direction = "down-left";
+        	if ( dy > 0 && dx > 0) direction = "down-right";
+        	// update the coordinates
+        	x += dx;
+            y += dy;
+            
+        
+        spriteCounter++;
+        if (spriteCounter > 10) {
+        	if (spriteNum == 1) {
+        		spriteNum = 2;
+        	}
+        	else if (spriteNum == 2) {
+        		spriteNum = 1;
+        	}
+        	spriteCounter = 0;
+        }
+    }
+
+    public SimulationObject(SPanel sp, float x_pos, float y_pos, int obj_width, int obj_height, int num, boolean is_infected) {
+        x = x_pos;
+        y = y_pos;
+        width = obj_width;
+        height = obj_height;
+        number = num;
+        infected = is_infected;
+        this.panel = sp;
+        
+        solidArea = new Rectangle(0,0,width,height);
+       
+        getObjectImage();
+        
+        angle = Instruments.random_number(0, 360);
+        System.out.println("!!!!x = " + x + " y = " + y + " \n");
+    }
+    
+    public int getNum() {
+    	return number;
+    }
+    
+    
+    public void paintObj(Graphics2D g2) {
+    	
+        
+        BufferedImage image = null;
+        
+        // animate object action
+        switch(state) {
+	        case "norm": 
+	        	if (spriteNum == 1) {
+	        		image = normBro;
+	        	}
+	        	if (spriteNum == 2) {
+	        		image = normBro2;
+	        	}
+	        	break;
+	        
+	        case "sick":
+	        	if (spriteNum == 1) {
+	        		image = sickBro;
+	        	}
+	        	if (spriteNum == 2) {
+	        		image = sickBro2;
+	        	}
+	        	break;
+	        case "immune":
+	        	if (spriteNum == 1) {
+	        		image = immuneBro;
+	        	}
+	        	if (spriteNum == 2) {
+	        		image = immuneBro2;
+	        	}
+	        	break;
+        }
+        
+        g2.drawImage(image, (int)x, (int)y, width, height, null);
+        
+    }
+    
+    public void getObjectImage() {
+    	try {
+    		
+    		normBro = ImageIO.read(getClass().getResourceAsStream("/player/normBro.png"));
+    		normBro2 = ImageIO.read(getClass().getResourceAsStream("/player/normBro2.png"));
+    		sickBro = ImageIO.read(getClass().getResourceAsStream("/player/sickBro.png"));
+    		sickBro2 = ImageIO.read(getClass().getResourceAsStream("/player/sickBro2.png"));
+    		immuneBro = ImageIO.read(getClass().getResourceAsStream("/player/immuneBro.png"));
+    		immuneBro2 = ImageIO.read(getClass().getResourceAsStream("/player/immuneBro2.png"));
+    		
+    	}catch(IOException e) {
+    		e.printStackTrace();
+    	}
+    }
+    
+    
+    public void recover(long delay) {
+    	Timer recovertimer = new Timer();
+    	recovertimer.schedule(new TimerTask() {
+    		@Override
+    		public void run() {
+    			int random_num = Instruments.random_number(0, 100);
+    			if (random_num <= recoverPercentage) {
+    				state = "immune";
+        			infected = false;
+        			immune = true; 
+        			}
+    			
+    		}
+    	}, delay);
+    
+    }
+
+    public void changeColorAfterDelay(long delayMillis, String newState) {
+        Timer timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                state = newState;
+                System.out.println("Object " + number + " changed color/state to: " + newState);
+            }
+        }, delayMillis);
+    }
+}
+
