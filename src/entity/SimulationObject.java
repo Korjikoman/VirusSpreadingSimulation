@@ -89,19 +89,19 @@ public class SimulationObject extends Entity{
         if (collisionTop) {
         	angle = Instruments.random_number(0, 360); // изменить направление
             
-        	System.out.println(" TOP ");
+        	//System.out.println(" TOP ");
         }
         else if (collisionBottom) {
         	angle = Instruments.random_number(0, 360);
-        	System.out.println(" BOTTOM ");
+        	//System.out.println(" BOTTOM ");
         }
         else if (collisionLeft) {
         	angle = Instruments.random_number(0, 360);
-        	System.out.println(" LEFT ");
+        	//System.out.println(" LEFT ");
         }
         else if (collisionRight) {
         	angle = Instruments.random_number(0, 360);
-        	System.out.println(" RIGHT ");
+        	//System.out.println(" RIGHT ");
         }
         
         	float dx = (float) ((float) speed * Math.sin((double) Math.toRadians(angle)));;
@@ -219,6 +219,7 @@ public class SimulationObject extends Entity{
     				state = "immune";
         			infected = false;
         			immune = true; 
+        			
         			}
     			
     		}

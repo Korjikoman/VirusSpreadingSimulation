@@ -56,7 +56,7 @@ public class CollisionChecker {
 				return;
 			}
 			tileNum2 = panel.tileM.mapTileNum[entityRightCol][entityBottomRow];
-			System.out.println("DOWN tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
+			//System.out.println("DOWN tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
 			if (panel.tileM.tile[tileNum1].collision == true || panel.tileM.tile[tileNum2].collision == true)
 			{
 				entity.collisionBottom = true;
@@ -84,7 +84,7 @@ public class CollisionChecker {
 			
 			tileNum1 = panel.tileM.mapTileNum[entityRightCol][entityTopRow];
 			tileNum2 = panel.tileM.mapTileNum[entityRightCol][entityBottomRow];
-			System.out.println("RIGHT tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
+			//System.out.println("RIGHT tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
 			if (panel.tileM.tile[tileNum1].collision == true || panel.tileM.tile[tileNum2].collision == true)
 			{
 				entity.collisionRight = true;
@@ -133,7 +133,7 @@ public class CollisionChecker {
 			}
 			
 			tileNum2 = panel.tileM.mapTileNum[entityRightCol][entityTopRow];
-			System.out.println("UP-RIGHT tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
+			//System.out.println("UP-RIGHT tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
 			if (panel.tileM.tile[tileNum1].collision == true)
 			{
 				entity.collisionTop = true;
@@ -156,7 +156,7 @@ public class CollisionChecker {
 			
 			entityLeftCol = (int)(entityLeftWorldX - entity.speed)/panel.tileSize;
 			tileNum2 = panel.tileM.mapTileNum[entityLeftCol][entityBottomRow];
-			System.out.println("DOWN-LEFT tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
+			//System.out.println("DOWN-LEFT tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
 			if (panel.tileM.tile[tileNum1].collision == true)
 			{
 				entity.collisionBottom = true;
@@ -171,7 +171,7 @@ public class CollisionChecker {
 			
 			
 			
-			System.out.println("DOWN-RIGHTTTT");
+			//System.out.println("DOWN-RIGHTTTT");
 			entityBottomRow = (int)(entityBottomWorldY + entity.speed)/panel.tileSize;
 			if (entityBottomRow >= 12) {
 				entity.collisionBottom= true;
@@ -192,12 +192,12 @@ public class CollisionChecker {
 				return;
 			}
 			
-			System.out.println("RIGHT-col = " + entityRightCol);
+			//System.out.println("RIGHT-col = " + entityRightCol);
 			entityRightCol = (int)(entityRightWorldX + entity.speed)/panel.tileSize;
 			
 			
 			tileNum2 = panel.tileM.mapTileNum[entityRightCol][entityBottomRow];
-			System.out.println("DOWN-RIGHT tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
+			//System.out.println("DOWN-RIGHT tile1 - " + tileNum1 + " tile2 -> " + tileNum2);
 			if (panel.tileM.tile[tileNum1].collision == true)
 			{
 				entity.collisionBottom = true;
@@ -247,7 +247,7 @@ public class CollisionChecker {
 	            simulationObject.x += Math.cos(Math.toRadians(simulationObject.angle)) * simulationObject.speed;
 	            simulationObject.y += Math.sin(Math.toRadians(simulationObject.angle)) * simulationObject.speed;
 
-	            System.out.println("INTERSECTS! " + simulationObject.getNum() + " <-> " + other.getNum());
+	            //System.out.println("INTERSECTS! " + simulationObject.getNum() + " <-> " + other.getNum());
 	        	
 	            if (simulationObject.infected && !(other.immune)) {
 	            	other.infected = true;

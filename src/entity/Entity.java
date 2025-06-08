@@ -1,9 +1,10 @@
 package entity;
 import java.awt.Rectangle;
+
 import java.awt.image.BufferedImage;
 
 public class Entity {
-	public double speed = 3;
+	public double speed = 2;
 	public float x, y;
 	
 	

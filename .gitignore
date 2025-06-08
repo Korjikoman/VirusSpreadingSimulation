@@ -9,3 +9,5 @@
 /CollisionChecker.class
 /SPanel.class
 /bin/
+/target/
+.pom
