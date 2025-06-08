@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 import charts.Charts;
 import entity.SimulationObject;
 import tile.TileManager;
+import tools.ControlPanel;
 import tools.Instruments;
 
 public class SPanel extends JPanel implements Runnable {
@@ -23,8 +24,8 @@ public class SPanel extends JPanel implements Runnable {
     public final int tileSize = originalTileSize * scale; // 48x48 tile
     public final int maxScreenCol = 20;
     public final int maxScreenRow = 15;
-    public final int screenWidth = tileSize * maxScreenCol; // 768 px
-    public final int screenHeight = tileSize * maxScreenRow; // 576 px
+    public final int screenWidth = tileSize * maxScreenCol; // 960 px
+    public final int screenHeight = tileSize * maxScreenRow; // 720 px
 
     // FPS
     int FPS = 60;
@@ -40,15 +41,17 @@ public class SPanel extends JPanel implements Runnable {
     
     
     // OBJECTS
-    final static int OBJECTS_NUM = 30;
+    final static int OBJECTS_NUM = 40;
     ArrayList<SimulationObject> objects = new ArrayList<>();
     
     public int infectedNum;
     public int healthyNum;
     public int immuneNum;
     
+   
+    
     // CHARTS
-    Charts charts = new Charts(this);
+    Charts charts;
     
     public SPanel() {
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -58,7 +61,7 @@ public class SPanel extends JPanel implements Runnable {
         // INITIALIZE INFECTED OBJECT
         float x_pos = Instruments.random_number(0, screenWidth - tileSize);
         float y_pos = Instruments.random_number(0, screenHeight - tileSize);
-        addObject(x_pos, y_pos, 0, true);
+        addObject(0, true);
         infectedNum ++;
         
         
@@ -66,16 +69,30 @@ public class SPanel extends JPanel implements Runnable {
         for (int i = 1; i < OBJECTS_NUM; i++) {
             float x_posit = Instruments.random_number(0, screenWidth - tileSize);
             float y_posit = Instruments.random_number(0, screenHeight - tileSize);
-            addObject(x_posit, y_posit, i, false);
+            addObject(i, false);
             healthyNum++;
         }
+      
+        
+        
+        charts = new Charts(this);
         charts.go();
+        
+        
     }
 
-    public void addObject(float x_pos, float y_pos, int number, boolean is_infected) {
-    	SimulationObject object = new SimulationObject(this, x_pos, y_pos, tileSize, tileSize, number, is_infected);
+    public void addObject(int number, boolean is_infected) {
+        float x_pos, y_pos;
+        SimulationObject object;
+        // OBJECTS MUST NOT CREATE ON COLLISION ZONE --------------------- (!!! NOT EFFECTIVE ALGORITHM !!!)
+        do {
+            x_pos = Instruments.random_number(0, screenWidth - tileSize);
+            y_pos = Instruments.random_number(0, screenHeight - tileSize);
+            object = new SimulationObject(this, (int)x_pos, (int)y_pos, tileSize, tileSize, number, is_infected);
+        } while (cChecker.checkTile(object));
+        ///////////////////////////////////////////////////////////////////////////////////////////////////
+        
         objects.add(object);
-
     }
     
     public ArrayList<SimulationObject> getObjects() {
@@ -98,7 +115,7 @@ public class SPanel extends JPanel implements Runnable {
 
             // UPDATE: information --> object position
             update();
-            System.out.println(" | INFECTED " + infectedNum + " | Healthy " + healthyNum + " | Immune " + immuneNum);
+            //System.out.println(" | INFECTED " + infectedNum + " | Healthy " + healthyNum + " | Immune " + immuneNum);
             // DRAW: draw the screen with updated information
             repaint();
             try {

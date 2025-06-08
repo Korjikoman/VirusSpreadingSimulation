@@ -8,6 +8,7 @@ import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
 
 import charts.Charts;
+import tools.ControlPanel;
 
 public class MainScreen {
     private JFrame frame;
@@ -36,7 +37,7 @@ public class MainScreen {
 
     public static void main(String[] args) {
         MainScreen screen = new MainScreen();
-        
+        ControlPanel cp = new ControlPanel();
 
     }
 

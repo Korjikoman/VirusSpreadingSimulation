@@ -44,33 +44,7 @@ public class SimulationObject extends Entity{
     
     public void move() {
 
-        int leftBound = 0;
-        int rightBound = 768;
-        int topBound = 0;
-        int bottomBound = 576;
-        //System.out.println("--> " + x + ';' + y + " angle = " + angle);
-
-        
-        
-        // Объект не должен выходить за пределы экрана
-        if (x <= leftBound) {
-            angle = Instruments.random_number(0, 180);
-            //System.out.println("Объект вышел за левую границу --> " + x + ';' + y);
-
-        } else if (x + width >= rightBound - 1) {
-
-            angle = Instruments.random_number(180, 360);
-            //System.out.println("Объект вышел за ПРАВУЮ границу --> " + x + ';' + y);
-        } else if (y <= topBound) {
-
-            angle = Instruments.random_number(-90, 90);
-            //System.out.println("Объект вышел за ВЕРХ границу --> " + x + ';' + y);
-        } else if (y + height >= bottomBound - 1) {
-
-            angle = Instruments.random_number(90, 270);
-            //System.out.println("Объект вышел за НИЗ границу --> " + x + ';' + y);
-        }
-        
+    
         // checking collision
         collisionTop = false;
     	collisionBottom = false;
@@ -84,26 +58,24 @@ public class SimulationObject extends Entity{
         if (infected) {
         	state = "sick";
         }
+        // DEBUG ////////////////////////////////////
+        
+        	System.out.println("Collision --> " + collisionTop + " " + collisionBottom + " " + collisionLeft+ " "+ collisionRight);
+        
+        /////////////////////////////////////////////////
         
         // IF COLLISION -- 
-        if (collisionTop) {
-        	angle = Instruments.random_number(0, 360); // изменить направление
+        if (collisionTop || collisionBottom) {
+        	angle = 180 - angle;
             
         	//System.out.println(" TOP ");
         }
-        else if (collisionBottom) {
-        	angle = Instruments.random_number(0, 360);
-        	//System.out.println(" BOTTOM ");
-        }
-        else if (collisionLeft) {
-        	angle = Instruments.random_number(0, 360);
+       
+        if (collisionLeft || collisionRight) {
+        	angle = -1 * angle;
         	//System.out.println(" LEFT ");
         }
-        else if (collisionRight) {
-        	angle = Instruments.random_number(0, 360);
-        	//System.out.println(" RIGHT ");
-        }
-        
+       
         	float dx = (float) ((float) speed * Math.sin((double) Math.toRadians(angle)));;
         	float dy = (float) ((float) speed * Math.cos((double) Math.toRadians(angle)));
         	
