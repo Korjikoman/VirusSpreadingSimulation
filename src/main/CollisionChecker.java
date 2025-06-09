@@ -27,27 +27,18 @@ public class CollisionChecker {
 		float entityRightWorldX = entity.x + entity.solidArea.x + entity.solidArea.width;
 		float entityTopWorldY = entity.y + entity.solidArea.y;
 		float entityBottomWorldY = entity.y + entity.solidArea.y + entity.solidArea.height;
-		System.out.println(" Lx"+entityLeftWorldX + "\n Rx"+ entityRightWorldX + "\n Ty"+ entityTopWorldY + "\n By"+ entityBottomWorldY + "\n ");
+		//System.out.println(" Lx"+entityLeftWorldX + "\n Rx"+ entityRightWorldX + "\n Ty"+ entityTopWorldY + "\n By"+ entityBottomWorldY + "\n ");
 		
 		// 
 		int entityLeftCol = (int)entityLeftWorldX / panel.tileSize; // колонка тайлов до leftX
 		int entityRightCol =(int) entityRightWorldX / panel.tileSize; // колонка тайлов до rightX
 		int entityTopRow = (int)entityTopWorldY / panel.tileSize;
 		int entityBottomRow = (int)entityBottomWorldY / panel.tileSize;
-		System.out.println("L"+entityLeftCol + " R"+ entityRightCol + " T"+ entityTopRow + " B"+ entityBottomRow + " ");
-		System.out.println("Direction: " + entity.direction);
+		//System.out.println("L"+entityLeftCol + " R"+ entityRightCol + " T"+ entityTopRow + " B"+ entityBottomRow + " ");
+		//System.out.println("Direction: " + entity.direction);
 		
 		int tileNum1, tileNum2;
-		// EXTRA TILES //////////////////
-		int extraTile1;
-		int extraTile2;
-		int extraTile3;
-		int extraTile4;
-		int extraTile5;
-		int extraTile6;
-		int extraTile7;
-		int extraTile8;
-		////////////////////////
+		
 		
 		int flag = 0;
 		
@@ -168,7 +159,7 @@ public class CollisionChecker {
 
 	        if (objBounds.intersects(otherBounds)) {
 	           
-	        	System.out.println("COLLISION BETWEEN OBJECTS");
+	        	//System.out.println("COLLISION BETWEEN OBJECTS");
 	        	
 	        	//HANDLE OBJECT BEHAVIOR AFTER COLLISION
 	        	resolveCollision(simulationObject, other);

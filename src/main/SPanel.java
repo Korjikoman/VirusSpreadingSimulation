@@ -3,11 +3,15 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import charts.Charts;
 import entity.SimulationObject;
@@ -27,13 +31,19 @@ public class SPanel extends JPanel implements Runnable {
     public final int screenWidth = tileSize * maxScreenCol; // 960 px
     public final int screenHeight = tileSize * maxScreenRow; // 720 px
 
+    // STARTING SIMULATION
+    public volatile boolean running = false;  
+    
+    // MAP
+    public String mapFilePath = "/maps/map.txt";
+    
     // FPS
     int FPS = 60;
     int recoverDelayMs = 3000; 
     Thread thread;
     
     // TILES
-    TileManager tileM = new TileManager(this);
+    public TileManager tileM = new TileManager(this);
     
     
     // COLLISION 
@@ -41,27 +51,50 @@ public class SPanel extends JPanel implements Runnable {
     
     
     // OBJECTS
-    final static int OBJECTS_NUM = 40;
+    public int OBJECTS_NUM = 50;
     ArrayList<SimulationObject> objects = new ArrayList<>();
+    public double objectsVelocity = 2;
     
     public int infectedNum;
     public int healthyNum;
     public int immuneNum;
     
-   
+    // SIMULATION TIMER
+    private Timer simulationTimer;
+    private int simulationTIME = 20000;
+    int elapsedTime=0;
     
     // CHARTS
-    Charts charts;
+    public Charts charts;
+    public boolean startCharts = false;
+    String chartsPath = "B:\\PRACTISE_4_SEMESTR\\virus simulation\\res\\charts";
+    
+    // DATA FOR CHARTS
+    List<int[]> dataPerSecond = new ArrayList<>();
+    
+    // 
     
     public SPanel() {
+    	
+    	
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
         this.setBackground(Color.WHITE);
         this.setDoubleBuffered(true);
         
-        // INITIALIZE INFECTED OBJECT
+        
+    	charts = new Charts(this);
+    	
+
+    }
+        
+       
+    public void initializeWORLD() {
+    	tileM.loadMap(mapFilePath);
+    	
+    	// INITIALIZE INFECTED OBJECT
         float x_pos = Instruments.random_number(0, screenWidth - tileSize);
         float y_pos = Instruments.random_number(0, screenHeight - tileSize);
-        addObject(0, true);
+        addObject(0, true, objectsVelocity);
         infectedNum ++;
         
         
@@ -69,26 +102,33 @@ public class SPanel extends JPanel implements Runnable {
         for (int i = 1; i < OBJECTS_NUM; i++) {
             float x_posit = Instruments.random_number(0, screenWidth - tileSize);
             float y_posit = Instruments.random_number(0, screenHeight - tileSize);
-            addObject(i, false);
+            addObject(i, false, objectsVelocity);
             healthyNum++;
         }
-      
         
+        // SIMULATION TIMER
         
-        charts = new Charts(this);
-        charts.go();
-        
-        
+    	simulationTimer = new Timer(1000, new ActionListener() {
+    				@Override
+    				public void actionPerformed(ActionEvent e) {
+    					dataPerSecond.add(new int[] {healthyNum, infectedNum, immuneNum});
+    					
+    					elapsedTime += 1000;
+    					
+    					
+    				}
+    	    	});
+    	
     }
 
-    public void addObject(int number, boolean is_infected) {
+    public void addObject(int number, boolean is_infected, double objVelocity) {
         float x_pos, y_pos;
         SimulationObject object;
         // OBJECTS MUST NOT CREATE ON COLLISION ZONE --------------------- (!!! NOT EFFECTIVE ALGORITHM !!!)
         do {
             x_pos = Instruments.random_number(0, screenWidth - tileSize);
             y_pos = Instruments.random_number(0, screenHeight - tileSize);
-            object = new SimulationObject(this, (int)x_pos, (int)y_pos, tileSize, tileSize, number, is_infected);
+            object = new SimulationObject(this, (int)x_pos, (int)y_pos, tileSize, tileSize, number, is_infected, objVelocity);
         } while (cChecker.checkTile(object));
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         
@@ -100,56 +140,86 @@ public class SPanel extends JPanel implements Runnable {
     }
     
     public void startThread() {
-        thread = new Thread(this);
-        thread.start();
+    	
+    	// INIT OBJECTS AND MAP
+    	initializeWORLD();
+    	///////////////////////////////
+    	
+    	if (!running) {
+    		
+            running = true;
+            simulationTimer.start();
+            thread = new Thread(this);
+            thread.start();
+            
+        }
+    	
 
     }
+    
+    public void stopSimulation() {
+        running = false;
+        
+    }
+    
 
     @Override
     public void run() {
-
+    	
         double drawInterval = 1000000000 / FPS; // 1 sec / 60 FPS
         double nextDrawTime = System.nanoTime() + drawInterval;
-
-        while (thread != null) {
-
-            // UPDATE: information --> object position
+        
+        while (running && elapsedTime <= simulationTIME) {
+        	System.out.println("ELAPSED_TIME = " + elapsedTime);
             update();
-            //System.out.println(" | INFECTED " + infectedNum + " | Healthy " + healthyNum + " | Immune " + immuneNum);
-            // DRAW: draw the screen with updated information
             repaint();
+            
             try {
-                double remainingTime = nextDrawTime - System.nanoTime();
-                remainingTime = remainingTime / 1000000;
-
-                if (remainingTime < 0) {
-                    remainingTime = 0;
-                }
-
-                Thread.sleep((long) remainingTime);
-
+                long sleepMs = (long)((nextDrawTime - System.nanoTime()) / 1_000_000);
+                if (sleepMs < 0) sleepMs = 0;
+                Thread.sleep(sleepMs);
                 nextDrawTime += drawInterval;
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
         }
-
+        
+        
+        for (SimulationObject obj : objects) {
+        	if (obj.infected) {
+        		obj.stopRecover();
+        		//System.out.println("TIMER STOPPED");
+        	}
+        }
+        
+        // SAVE CHARTS
+        charts.saveDataInCharts(dataPerSecond, chartsPath);
+        
+        
+        // После выхода из while поток завершится, thread можно занулить:
+        thread = null;
     }
+        
+
 
     public void update() {
     	int infected = 0;
         int healthy = OBJECTS_NUM;
         int immune = 0;
         
+        
+        
         for (SimulationObject obj : objects) {
             obj.move();
+            
             if (obj.infected) {
             	infected++;
             	healthy--;
-            	obj.recover(recoverDelayMs);            
+            	//System.out.println("TIMER - " + obj.timerStarted);
+           		obj.startRecover();
+            	//System.out.println("TIMER Resumed");
             }
-            if (obj.immune) {
+            else if (obj.immune) {
         		
         		if (infected > 0) {
         			infected--;	

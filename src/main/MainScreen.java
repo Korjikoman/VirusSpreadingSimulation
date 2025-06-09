@@ -11,34 +11,19 @@ import charts.Charts;
 import tools.ControlPanel;
 
 public class MainScreen {
-    private JFrame frame;
-
     
-    private static final int OBJECT_WIDTH = 30;
-    private static final int OBJECT_HEIGHT = 30;
-
-    private static String TITLE = "Some title";
+    private ControlPanel cp;
 
     public MainScreen() {
-        frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        frame.setTitle(TITLE);
-
-        SPanel panel = new SPanel();
-        frame.add(panel);
-        frame.pack();
-
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-
-        panel.startThread();
+        cp = new ControlPanel();
     }
 
     public static void main(String[] args) {
-        MainScreen screen = new MainScreen();
-        ControlPanel cp = new ControlPanel();
+    	
+    	MainScreen screen = new MainScreen();	
 
     }
+    
 
 }

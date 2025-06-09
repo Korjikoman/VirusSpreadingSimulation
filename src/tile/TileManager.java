@@ -26,14 +26,15 @@ public class TileManager {
 		mapTileNum = new int[panel.maxScreenCol][panel.maxScreenRow];
 		
 		getTileImage();
-		loadMap("/maps/map.txt");
+		
+		
 	}
 	
 	
 	
 	
 	public void loadMap(String filePath) {
-		
+		System.out.println("LOADING MAP --> " + filePath);
 		try {
 			InputStream is = getClass().getResourceAsStream(filePath);
 			BufferedReader br = new BufferedReader(new InputStreamReader(is));

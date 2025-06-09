@@ -3,20 +3,21 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.*;
+import javax.swing.*;
+import javax.swing.Timer;
 
+import java.awt.*;
 import javax.imageio.ImageIO;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import main.SPanel;
 import tools.Instruments;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 public class SimulationObject extends Entity{
   
@@ -30,9 +31,17 @@ public class SimulationObject extends Entity{
     // VIRUS-related SETTINGS
     public boolean infected = false;
     public boolean immune = false;
-    private int recoverPercentage = 10;
+    private int recoverPercentage = 60;
+    
+    // RECOVER TIMER 
+    public Timer timer;
+    public boolean timerStarted = false;
+    
     
     SPanel panel;
+    
+    
+    
     
     public double getSpeed() {
         return speed;
@@ -43,8 +52,8 @@ public class SimulationObject extends Entity{
     }
     
     public void move() {
-
-    
+    	
+    	System.out.println("x: " + x + " y: " + y);
         // checking collision
         collisionTop = false;
     	collisionBottom = false;
@@ -60,7 +69,7 @@ public class SimulationObject extends Entity{
         }
         // DEBUG ////////////////////////////////////
         
-        	System.out.println("Collision --> " + collisionTop + " " + collisionBottom + " " + collisionLeft+ " "+ collisionRight);
+        	//System.out.println("Collision --> " + collisionTop + " " + collisionBottom + " " + collisionLeft+ " "+ collisionRight);
         
         /////////////////////////////////////////////////
         
@@ -78,7 +87,7 @@ public class SimulationObject extends Entity{
        
         	float dx = (float) ((float) speed * Math.sin((double) Math.toRadians(angle)));;
         	float dy = (float) ((float) speed * Math.cos((double) Math.toRadians(angle)));
-        	
+        	System.out.println("dx: " + dx + " dy: "+ dy + " speed:" + speed + " angle: " + angle);
         	// set the direction
         	if ( dy < 0 && dx == 0) direction = "up";
         	if ( dy > 0 && dx == 0) direction = "down";
@@ -91,6 +100,8 @@ public class SimulationObject extends Entity{
         	// update the coordinates
         	x += dx;
             y += dy;
+            
+            
             
         
         spriteCounter++;
@@ -105,13 +116,15 @@ public class SimulationObject extends Entity{
         }
     }
 
-    public SimulationObject(SPanel sp, float x_pos, float y_pos, int obj_width, int obj_height, int num, boolean is_infected) {
+    public SimulationObject(SPanel sp, float x_pos, float y_pos, int obj_width, int obj_height, int num, boolean is_infected, double objVelocity) {
         x = x_pos;
         y = y_pos;
         width = obj_width;
         height = obj_height;
         number = num;
         infected = is_infected;
+        speed = objVelocity;
+        
         this.panel = sp;
         
         solidArea = new Rectangle(0,0,width,height);
@@ -120,6 +133,24 @@ public class SimulationObject extends Entity{
         
         angle = Instruments.random_number(0, 360);
         System.out.println("!!!!x = " + x + " y = " + y + " \n");
+        
+		
+     // FIRST AND LAST INITIALIZATION
+	timer = new Timer(2000, new ActionListener() {
+	    		
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					int random_num = Instruments.random_number(0, 100);
+					if (random_num <= recoverPercentage) {
+	    				state = "immune";
+	        			infected = false;
+	        			immune = true; 
+	        			
+	        			}
+				}
+	    	});
+
+        
     }
     
     public int getNum() {
@@ -180,34 +211,18 @@ public class SimulationObject extends Entity{
     	}
     }
     
+   
     
-    public void recover(long delay) {
-    	Timer recovertimer = new Timer();
-    	recovertimer.schedule(new TimerTask() {
-    		@Override
-    		public void run() {
-    			int random_num = Instruments.random_number(0, 100);
-    			if (random_num <= recoverPercentage) {
-    				state = "immune";
-        			infected = false;
-        			immune = true; 
-        			
-        			}
-    			
-    		}
-    	}, delay);
-    
+    public void startRecover() {
+    	timer.start();
+    	timerStarted = true;
     }
+    
+    public void stopRecover() {
+    	timer.stop();
+    	timerStarted = false;
+    }
+    
 
-    public void changeColorAfterDelay(long delayMillis, String newState) {
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                state = newState;
-                System.out.println("Object " + number + " changed color/state to: " + newState);
-            }
-        }, delayMillis);
-    }
 }
 
