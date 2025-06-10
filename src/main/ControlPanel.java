@@ -1,9 +1,13 @@
-package tools;
+package main;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -14,8 +18,6 @@ import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
 import charts.Charts;
-import main.MainScreen;
-import main.SPanel;
 
 public class ControlPanel extends JFrame implements ActionListener {
 	
@@ -23,14 +25,18 @@ public class ControlPanel extends JFrame implements ActionListener {
     private SPanel sp;
     private JFrame frame;
     private static String TITLE = "Some title";
-	
+    public static String chartsPath = "B:\\PRACTISE_4_SEMESTR\\virus simulation\\res\\charts\\";
+    
+    
     // BUTTONS
     private JButton btnStart;
     private JButton btnSettings;
     private JButton btnStop;
+    private JButton btnResume;
     private JButton btnCharts;
-    private JButton btnReset;
+    private JButton btnSaved;
     private JButton btnApply;
+    
     
     // SETTINGS DATA
     private JFrame settingsFrame;
@@ -56,8 +62,10 @@ public class ControlPanel extends JFrame implements ActionListener {
         btnStart = createButton("Начать симуляцию", 50, 20, 200, 50);
         btnSettings = createButton("Настройки", 50, 90, 200, 50);
         btnStop = createButton("Стоп", 50, 160, 200, 50);
+        btnResume = createButton("Возобновить", 50, 160, 200, 50);
+        btnResume.setEnabled(false);
         btnCharts = createButton("График-момент.", 50, 230, 200, 50);
-        btnReset = createButton("Сброс", 50, 300, 200, 50);
+        btnSaved = createButton("Сохр. графики", 50, 300, 200, 50);
 
       
 
@@ -103,13 +111,47 @@ public class ControlPanel extends JFrame implements ActionListener {
             frame.setLocationRelativeTo(null);
             frame.setVisible(true);
            ////////////////////////////////////////////////////
-        	
-        	sp.startThread();
+            sp.startThread();
         	btnSettings.setEnabled(false);
+        	btnStart.setEnabled(false);
+        	
         }
         else if (e.getSource()  == btnStop) {
-        	sp.stopSimulation();
+        	
+        	// CHANGE STOP TO RESUME
+        	btnStop.setEnabled(false);
+        	btnStop.setVisible(false);
+        	btnResume.setEnabled(true);
+        	btnResume.setVisible(true);
+        	///////////////////////////
+        	try {
+        		sp.stopSimulation();	
+        	}
+        	catch (NullPointerException ex) {
+        		System.out.println("START THE SIMULATION!");
+        	}
+        	
+        	System.out.println("STOP");
         }
+        else if (e.getSource()  == btnResume) {
+        	
+        	// CHANGE RESUME TO STOP
+        	btnResume.setEnabled(false);
+        	btnResume.setVisible(false);
+        	btnStop.setEnabled(true);
+        	btnStop.setVisible(true);
+        	///////////////////////
+        	try {
+        		sp.runSimulation();
+        	}
+        	catch (NullPointerException ex) {
+        		System.out.println("START THE SIMULATION!");
+        	}
+        	System.out.println("RESUME");
+        	
+        	
+        }
+        
         else if (e.getSource() == btnCharts) {
         	// CREATING CHARTS
         	if (!sp.startCharts) {
@@ -120,8 +162,20 @@ public class ControlPanel extends JFrame implements ActionListener {
                 }).start(); 
             }
         }
-        else if (e.getSource() == btnReset) {
-            // DO SMTH
+        else if (e.getSource() == btnSaved) {
+        	Desktop d = null;
+            File file = new File(chartsPath);
+            
+            if (Desktop.isDesktopSupported()) {
+            	d = Desktop.getDesktop();
+            	
+            }
+            try {
+            	d.open(file);
+            }
+            catch(IOException ex) {
+            	System.out.println(ex);
+            }
         }
         
         

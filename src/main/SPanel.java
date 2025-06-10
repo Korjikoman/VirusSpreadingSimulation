@@ -16,7 +16,6 @@ import javax.swing.Timer;
 import charts.Charts;
 import entity.SimulationObject;
 import tile.TileManager;
-import tools.ControlPanel;
 import tools.Instruments;
 
 public class SPanel extends JPanel implements Runnable {
@@ -32,7 +31,7 @@ public class SPanel extends JPanel implements Runnable {
     public final int screenHeight = tileSize * maxScreenRow; // 720 px
 
     // STARTING SIMULATION
-    public volatile boolean running = false;  
+    private volatile boolean running = false;  
     
     // MAP
     public String mapFilePath = "/maps/map.txt";
@@ -67,7 +66,7 @@ public class SPanel extends JPanel implements Runnable {
     // CHARTS
     public Charts charts;
     public boolean startCharts = false;
-    String chartsPath = "B:\\PRACTISE_4_SEMESTR\\virus simulation\\res\\charts";
+    
     
     // DATA FOR CHARTS
     List<int[]> dataPerSecond = new ArrayList<>();
@@ -162,6 +161,14 @@ public class SPanel extends JPanel implements Runnable {
         
     }
     
+    public void runSimulation() {
+        running = true;
+        simulationTimer.start();
+        thread = new Thread(this);
+        thread.start();
+        
+    }
+    
 
     @Override
     public void run() {
@@ -188,12 +195,17 @@ public class SPanel extends JPanel implements Runnable {
         for (SimulationObject obj : objects) {
         	if (obj.infected) {
         		obj.stopRecover();
+        		
         		//System.out.println("TIMER STOPPED");
         	}
         }
-        
+        simulationTimer.stop();
         // SAVE CHARTS
-        charts.saveDataInCharts(dataPerSecond, chartsPath);
+        if (elapsedTime >= 21000) {
+        	System.out.println("SAVING CAUSE ELAPSED TIME == " + elapsedTime);
+        	charts.saveDataInCharts(dataPerSecond, ControlPanel.chartsPath);
+        }
+        
         
         
         // После выхода из while поток завершится, thread можно занулить:
@@ -204,32 +216,27 @@ public class SPanel extends JPanel implements Runnable {
 
     public void update() {
     	int infected = 0;
-        int healthy = OBJECTS_NUM;
+        int healthy = 0;
         int immune = 0;
         
         
         
         for (SimulationObject obj : objects) {
             obj.move();
-            
+           
             if (obj.infected) {
-            	infected++;
-            	healthy--;
-            	//System.out.println("TIMER - " + obj.timerStarted);
            		obj.startRecover();
-            	//System.out.println("TIMER Resumed");
+           		infected += 1;
             }
             else if (obj.immune) {
-        		
-        		if (infected > 0) {
-        			infected--;	
-        		}
-        		
-        		healthy--;
-        		immune ++;
+        		immune += 1;
         	}
+            else if (obj.healthy){
+            	healthy += 1;
+            }
+       
         }
-        
+        System.out.println("HEALTHY "+ healthy + " INFECTED " + infected + " IMMUNE " + immune);
         infectedNum = infected;
         healthyNum = healthy;
         immuneNum = immune;

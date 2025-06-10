@@ -8,7 +8,6 @@ import org.knowm.xchart.SwingWrapper;
 import org.knowm.xchart.XYChart;
 
 import charts.Charts;
-import tools.ControlPanel;
 
 public class MainScreen {
     

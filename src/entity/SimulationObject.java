@@ -31,6 +31,7 @@ public class SimulationObject extends Entity{
     // VIRUS-related SETTINGS
     public boolean infected = false;
     public boolean immune = false;
+    public boolean healthy = true;
     private int recoverPercentage = 60;
     
     // RECOVER TIMER 
@@ -53,7 +54,7 @@ public class SimulationObject extends Entity{
     
     public void move() {
     	
-    	System.out.println("x: " + x + " y: " + y);
+    	//System.out.println("x: " + x + " y: " + y);
         // checking collision
         collisionTop = false;
     	collisionBottom = false;
@@ -87,7 +88,7 @@ public class SimulationObject extends Entity{
        
         	float dx = (float) ((float) speed * Math.sin((double) Math.toRadians(angle)));;
         	float dy = (float) ((float) speed * Math.cos((double) Math.toRadians(angle)));
-        	System.out.println("dx: " + dx + " dy: "+ dy + " speed:" + speed + " angle: " + angle);
+        	//System.out.println("dx: " + dx + " dy: "+ dy + " speed:" + speed + " angle: " + angle);
         	// set the direction
         	if ( dy < 0 && dx == 0) direction = "up";
         	if ( dy > 0 && dx == 0) direction = "down";
@@ -123,6 +124,8 @@ public class SimulationObject extends Entity{
         height = obj_height;
         number = num;
         infected = is_infected;
+        healthy = true;
+        
         speed = objVelocity;
         
         this.panel = sp;
@@ -145,7 +148,7 @@ public class SimulationObject extends Entity{
 	    				state = "immune";
 	        			infected = false;
 	        			immune = true; 
-	        			
+	        			healthy = false;
 	        			}
 				}
 	    	});
