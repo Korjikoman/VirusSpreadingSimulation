@@ -1,15 +1,15 @@
 package entity;
 import java.awt.Rectangle;
-
+import java.awt.geom.Ellipse2D;
 import java.awt.image.BufferedImage;
 
 public class Entity {
 	public double speed;
-	public float x, y;
+	public double x, y;
 	
 	
 	
-	public BufferedImage normBro, normBro2, sickBro, sickBro2, immuneBro, immuneBro2;
+	public BufferedImage normBro, normBro2, sickBro, sickBro2, immuneBro, immuneBro2,reinfectedBro, reinfectedBro2, deadBro, deadBro2;
 	public String state = "norm";
 	
 	public String direction = "down";

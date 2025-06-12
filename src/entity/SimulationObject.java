@@ -12,6 +12,8 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.Timer;
 
+import immune_system.ImmuneSystem;
+
 import java.awt.*;
 import javax.imageio.ImageIO;
 
@@ -23,8 +25,8 @@ public class SimulationObject extends Entity{
   
     private int width;
     private int height;
-    public int angle;
-    private int number;
+    public double angle;
+    private int index;
     
     
     
@@ -32,16 +34,19 @@ public class SimulationObject extends Entity{
     public boolean infected = false;
     public boolean immune = false;
     public boolean healthy = true;
-    private int recoverPercentage = 60;
+    public boolean dead = false;
     
     // RECOVER TIMER 
     public Timer timer;
     public boolean timerStarted = false;
     
     
-    SPanel panel;
+    public SPanel panel;
     
+    // IMMUNE SYSTEM
+    public ImmuneSystem imSys;
     
+
     
     
     public double getSpeed() {
@@ -53,58 +58,75 @@ public class SimulationObject extends Entity{
     }
     
     public void move() {
+    	if (!dead) { // если чел не умер
+    		
+    		//System.out.println("x: " + x + " y: " + y);
+            // checking collision
+            collisionTop = false;
+        	collisionBottom = false;
+        	collisionLeft = false;
+        	collisionRight = false;
+        	// TILE COLLISON
+            panel.cChecker.checkTile(this);
+            
+            // OBJECTS COLLISION
+            panel.cChecker.checkObjects(this);
+            
+            if (infected && !immune) {
+            	state = "sick";
+            }
+            else if (immune && !infected) {
+            	state = "immune";
+            }
+            else if (immune && infected) {
+            	state = "reinfected";
+            }
+            
+            
+            // DEBUG ////////////////////////////////////
+            
+            	//System.out.println("Collision --> " + collisionTop + " " + collisionBottom + " " + collisionLeft+ " "+ collisionRight);
+            
+            /////////////////////////////////////////////////
+            
+            // IF COLLISION -- 
+            if (collisionTop || collisionBottom) {
+            	angle = 180 - angle;
+                
+            	//System.out.println(" TOP ");
+            }
+           
+            if (collisionLeft || collisionRight) {
+            	angle = -1 * angle;
+            	//System.out.println(" LEFT ");
+            }
+           
+            	float dx = (float) ((float) speed * Math.sin((double) Math.toRadians(angle)));;
+            	float dy = (float) ((float) speed * Math.cos((double) Math.toRadians(angle)));
+            	//System.out.println("dx: " + dx + " dy: "+ dy + " speed:" + speed + " angle: " + angle);
+            	// set the direction
+            	if ( dy < 0 && dx == 0) direction = "up";
+            	if ( dy > 0 && dx == 0) direction = "down";
+            	if ( dy == 0 && dx < 0) direction = "left";
+            	if ( dy == 0 && dx > 0) direction = "right";
+            	if ( dy < 0 && dx < 0) direction = "up-left";
+            	if ( dy < 0 && dx > 0) direction = "up-right";
+            	if ( dy > 0 && dx < 0) direction = "down-left";
+            	if ( dy > 0 && dx > 0) direction = "down-right";
+            	// update the coordinates
+            	x += dx;
+                y += dy;
+                
+                
+                
+    		
+    	}
+    	// умерший игрок не движется
+    	else {
+    		state = "dead";
+    	}
     	
-    	//System.out.println("x: " + x + " y: " + y);
-        // checking collision
-        collisionTop = false;
-    	collisionBottom = false;
-    	collisionLeft = false;
-    	collisionRight = false;
-    	// TILE COLLISON
-        panel.cChecker.checkTile(this);
-        
-        // OBJECTS COLLISION
-        panel.cChecker.checkObjects(this);
-        if (infected) {
-        	state = "sick";
-        }
-        // DEBUG ////////////////////////////////////
-        
-        	//System.out.println("Collision --> " + collisionTop + " " + collisionBottom + " " + collisionLeft+ " "+ collisionRight);
-        
-        /////////////////////////////////////////////////
-        
-        // IF COLLISION -- 
-        if (collisionTop || collisionBottom) {
-        	angle = 180 - angle;
-            
-        	//System.out.println(" TOP ");
-        }
-       
-        if (collisionLeft || collisionRight) {
-        	angle = -1 * angle;
-        	//System.out.println(" LEFT ");
-        }
-       
-        	float dx = (float) ((float) speed * Math.sin((double) Math.toRadians(angle)));;
-        	float dy = (float) ((float) speed * Math.cos((double) Math.toRadians(angle)));
-        	//System.out.println("dx: " + dx + " dy: "+ dy + " speed:" + speed + " angle: " + angle);
-        	// set the direction
-        	if ( dy < 0 && dx == 0) direction = "up";
-        	if ( dy > 0 && dx == 0) direction = "down";
-        	if ( dy == 0 && dx < 0) direction = "left";
-        	if ( dy == 0 && dx > 0) direction = "right";
-        	if ( dy < 0 && dx < 0) direction = "up-left";
-        	if ( dy < 0 && dx > 0) direction = "up-right";
-        	if ( dy > 0 && dx < 0) direction = "down-left";
-        	if ( dy > 0 && dx > 0) direction = "down-right";
-        	// update the coordinates
-        	x += dx;
-            y += dy;
-            
-            
-            
-        
+    	// Анимируем объект
         spriteCounter++;
         if (spriteCounter > 10) {
         	if (spriteNum == 1) {
@@ -117,16 +139,19 @@ public class SimulationObject extends Entity{
         }
     }
 
-    public SimulationObject(SPanel sp, float x_pos, float y_pos, int obj_width, int obj_height, int num, boolean is_infected, double objVelocity) {
+    public SimulationObject(SPanel sp, float x_pos, float y_pos, int obj_width, int obj_height, int num, boolean is_infected, boolean is_immune, double objVelocity) {
         x = x_pos;
         y = y_pos;
         width = obj_width;
         height = obj_height;
-        number = num;
+        index = num;
         infected = is_infected;
+        immune = is_immune;
         healthy = true;
         
         speed = objVelocity;
+        
+        imSys = new ImmuneSystem(this);
         
         this.panel = sp;
         
@@ -143,13 +168,24 @@ public class SimulationObject extends Entity{
 	    		
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					int random_num = Instruments.random_number(0, 100);
-					if (random_num <= recoverPercentage) {
+					double random_num = Instruments.random_number(1, 100);
+					double death_num = Instruments.random_number(1, 100);
+					if (random_num <= (sp.VACCINE_EFFICIENCY)) {
+						//System.out.println("VACINATED " + (sp.VACCINE_EFFICIENCY * 100));
 	    				state = "immune";
 	        			infected = false;
 	        			immune = true; 
 	        			healthy = false;
+	        			imSys.sick();
 	        			}
+					else {
+						if (death_num * 2 <= sp.MORALITY) {
+							infected = false;
+		        			immune = false; 
+		        			healthy = false;
+		        			dead = true;
+						}
+					}
 				}
 	    	});
 
@@ -157,7 +193,7 @@ public class SimulationObject extends Entity{
     }
     
     public int getNum() {
-    	return number;
+    	return index;
     }
     
     
@@ -193,6 +229,22 @@ public class SimulationObject extends Entity{
 	        		image = immuneBro2;
 	        	}
 	        	break;
+	        case "reinfected":
+	        	if (spriteNum == 1) {
+	        		image = reinfectedBro;
+	        	}
+	        	if (spriteNum == 2) {
+	        		image = reinfectedBro2;
+	        	}
+	        	break;
+	        case "dead":
+	        	if (spriteNum == 1) {
+	        		image = deadBro;
+	        	}
+	        	if (spriteNum == 2) {
+	        		image = deadBro2;
+	        	}
+	        	break;
         }
         
         g2.drawImage(image, (int)x, (int)y, width, height, null);
@@ -208,6 +260,10 @@ public class SimulationObject extends Entity{
     		sickBro2 = ImageIO.read(getClass().getResourceAsStream("/player/sickBro2.png"));
     		immuneBro = ImageIO.read(getClass().getResourceAsStream("/player/immuneBro.png"));
     		immuneBro2 = ImageIO.read(getClass().getResourceAsStream("/player/immuneBro2.png"));
+    		reinfectedBro = ImageIO.read(getClass().getResourceAsStream("/player/reInfectedBro.png"));
+    		reinfectedBro2 = ImageIO.read(getClass().getResourceAsStream("/player/reInfectedBro2.png"));
+    		deadBro = ImageIO.read(getClass().getResourceAsStream("/player/deadBro.png"));
+    		deadBro2 = ImageIO.read(getClass().getResourceAsStream("/player/deadBro2.png"));
     		
     	}catch(IOException e) {
     		e.printStackTrace();
@@ -228,4 +284,3 @@ public class SimulationObject extends Entity{
     
 
 }
-

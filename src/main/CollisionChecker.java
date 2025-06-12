@@ -23,10 +23,10 @@ public class CollisionChecker {
 	// COLLISION BETWEEEN OBJECT AND TILES
 	public boolean checkTile(Entity entity) {
 		// Координаты точек красной зоны
-		float entityLeftWorldX = entity.x + entity.solidArea.x; // 
-		float entityRightWorldX = entity.x + entity.solidArea.x + entity.solidArea.width;
-		float entityTopWorldY = entity.y + entity.solidArea.y;
-		float entityBottomWorldY = entity.y + entity.solidArea.y + entity.solidArea.height;
+		double entityLeftWorldX = entity.x + entity.solidArea.x; // 
+		double entityRightWorldX = entity.x + entity.solidArea.x + entity.solidArea.width;
+		double entityTopWorldY = entity.y + entity.solidArea.y;
+		double entityBottomWorldY = entity.y + entity.solidArea.y + entity.solidArea.height;
 		//System.out.println(" Lx"+entityLeftWorldX + "\n Rx"+ entityRightWorldX + "\n Ty"+ entityTopWorldY + "\n By"+ entityBottomWorldY + "\n ");
 		
 		// 
@@ -138,81 +138,164 @@ public class CollisionChecker {
 
 	// COLLISION BETWEEEN OBJECTS
 	public void checkObjects(SimulationObject simulationObject) {
-	    ArrayList<SimulationObject> objects = panel.getObjects();
+	    
+	    
+	    
+	    if(!simulationObject.dead) {
+	    	ArrayList<SimulationObject> objects = panel.getObjects();
+	    	Rectangle objBounds = new Rectangle(
+	    	        (int)(simulationObject.x + simulationObject.solidArea.x),
+	    	        (int)(simulationObject.y + simulationObject.solidArea.y),
+	    	        simulationObject.solidArea.width,
+	    	        simulationObject.solidArea.height
+	    	    );
 
-	    Rectangle objBounds = new Rectangle(
-	        (int)(simulationObject.x + simulationObject.solidArea.x),
-	        (int)(simulationObject.y + simulationObject.solidArea.y),
-	        simulationObject.solidArea.width,
-	        simulationObject.solidArea.height
-	    );
+	    	    for (SimulationObject other : objects) {
+	    	        if (other == simulationObject || other == null) continue;
 
-	    for (SimulationObject other : objects) {
-	        if (other == simulationObject || other == null) continue;
+	    	        Rectangle otherBounds = new Rectangle(
+	    	            (int)(other.x + other.solidArea.x),
+	    	            (int)(other.y + other.solidArea.y),
+	    	            other.solidArea.width,
+	    	            other.solidArea.height
+	    	        );
 
-	        Rectangle otherBounds = new Rectangle(
-	            (int)(other.x + other.solidArea.x),
-	            (int)(other.y + other.solidArea.y),
-	            other.solidArea.width,
-	            other.solidArea.height
-	        );
-
-	        if (objBounds.intersects(otherBounds)) {
-	           
-	        	//System.out.println("COLLISION BETWEEN OBJECTS");
-	        	
-	        	//HANDLE OBJECT BEHAVIOR AFTER COLLISION
-	        	resolveCollision(simulationObject, other);
-	            	        	
-	            if (simulationObject.infected && !(other.immune)) {
-	            	other.infected = true;
-	            }
-	        	
-	        }
+	    	        if (objBounds.intersects(otherBounds) && !other.dead) {
+	    	           
+	    	        	
+	    	        	double infNum1 = Instruments.random_number(0.01, 100); // вероятность заражения у нормисов
+	    	        	double infNum2 = Instruments.random_number(0.01, 100); // вероятность заражения у нормисов
+	    	        	
+	    	        	
+	    	            	        	
+	    	            if (simulationObject.infected && !(other.immune) && (infNum1 < panel.INFECTED_PROBABILITY) ) {
+	    	            	other.infected = true;
+	    	            	System.out.println("FUCKKKKKKKKKKKKKKKKKKKK");
+	    	            	System.out.println("simulationObject.immune" + simulationObject.immune);
+	    	            }
+	    	            else if (other.infected && !(simulationObject.immune) && (infNum2 < panel.INFECTED_PROBABILITY)) {
+	    	            	simulationObject.infected = true;
+	    	            	System.out.println("FUCKKKKKKKKKKKKKKKKKKKK");
+	    	            	System.out.println("simulationObject.immune" + simulationObject.immune);
+	    	            	//System.out.println("Random num = " + randomNum1);
+	    	            }
+	    	            // если же у него иммунитет
+	    	            else if (simulationObject.infected && other.immune) {
+	    	            	if (other.imSys.reInfect()) {
+	    	            		// заново заражаем челика
+	    	            		other.infected = true;
+	    	            		other.immune = true;
+	    	            		// отмечаем, что он повторно заболел
+	    	            		other.imSys.sick();
+	    	            		
+	    	            	}
+	    	            }
+	    	         // если же у него иммунитет
+	    	            else if (other.infected && simulationObject.immune) {
+	    	            	if (simulationObject.imSys.reInfect()) {
+	    	            		// заново заражаем челика
+	    	            		simulationObject.infected = true;
+	    	            		simulationObject.immune = true;
+	    	            		// отмечаем, что он повторно заболел
+	    	            		simulationObject.imSys.sick();
+	    	            		
+	    	            	}
+	    	            }
+	    	            
+	    	            //HANDLE OBJECT BEHAVIOR AFTER COLLISION
+	    	            resolveCollision(simulationObject, other);
+	    	        	
+	    	        }
+	    	    }
 	    }
+	    
 	}
 	private void resolveCollision(SimulationObject obj1, SimulationObject obj2) {
-		// Вычисляем векторы нормали
-	    float dx = (obj2.x + obj2.solidArea.x + obj2.solidArea.width/2f) - 
+	    // Вычисляем векторы нормали между центрами объектов
+		double dx = (obj2.x + obj2.solidArea.x + obj2.solidArea.width/2f) - 
 	               (obj1.x + obj1.solidArea.x + obj1.solidArea.width/2f);
-	    float dy = (obj2.y + obj2.solidArea.y + obj2.solidArea.height/2f) - 
+		double dy = (obj2.y + obj2.solidArea.y + obj2.solidArea.height/2f) - 
 	               (obj1.y + obj1.solidArea.y + obj1.solidArea.height/2f);
 	    float distance = (float) Math.sqrt(dx*dx + dy*dy);
 	    
 	    if (distance == 0) return; // Защита от деления на ноль
 	    
+	    // Нормализуем вектор
 	    dx /= distance;
 	    dy /= distance;
 
-	    // Вычисляем относительную скорость
+	    // Вычисляем относительные скорости
 	    float v1x = (float) (obj1.speed * Math.sin(Math.toRadians(obj1.angle)));
 	    float v1y = (float) (obj1.speed * Math.cos(Math.toRadians(obj1.angle)));
 	    float v2x = (float) (obj2.speed * Math.sin(Math.toRadians(obj2.angle)));
 	    float v2y = (float) (obj2.speed * Math.cos(Math.toRadians(obj2.angle)));
 	    
-	    float dotProduct1 = v1x*dx + v1y*dy;
-	    float dotProduct2 = v2x*dx + v2y*dy;
+	    // Проекции скоростей на нормаль
+	    double dotProduct1 = v1x*dx + v1y*dy;
+	    double dotProduct2 = v2x*dx + v2y*dy;
 
-	    // Обмен компонентами скорости вдоль нормали
-	    float newV1x = v1x - dotProduct1 * dx + dotProduct2 * dx;
-	    float newV1y = v1y - dotProduct1 * dy + dotProduct2 * dy;
-	    float newV2x = v2x - dotProduct2 * dx + dotProduct1 * dx;
-	    float newV2y = v2y - dotProduct2 * dy + dotProduct1 * dy;
+	    // Обмен компонентами скорости вдоль нормали (упругое столкновение)
+	    double newV1x = v1x - dotProduct1 * dx + dotProduct2 * dx;
+	    double newV1y = v1y - dotProduct1 * dy + dotProduct2 * dy;
+	    double newV2x = v2x - dotProduct2 * dx + dotProduct1 * dx;
+	    double newV2y = v2y - dotProduct2 * dy + dotProduct1 * dy;
 
 	    // Обновляем углы движения
 	    obj1.angle = (int) Math.toDegrees(Math.atan2(newV1x, newV1y));
 	    obj2.angle = (int) Math.toDegrees(Math.atan2(newV2x, newV2y));
 	    
 	    // Разделяем объекты, чтобы избежать залипания
-	    float overlap = (obj1.solidArea.width/2f + obj2.solidArea.width/2f) - distance;
+	    double overlap = (obj1.solidArea.width/2f + obj2.solidArea.width/2f) - distance;
 	    if (overlap > 0) {
-	        float separateX = dx * overlap * 0.5f;
-	        float separateY = dy * overlap * 0.5f;
+	    	double separateX = dx * overlap * 0.5f;
+	        double separateY = dy * overlap * 0.5f;
 	        
+	        // Сохраняем старые позиции для проверки коллизий с тайлами
+	        double oldX1 = obj1.x;
+	        double oldY1 = obj1.y;
+	        double oldX2 = obj2.x;
+	        double oldY2 = obj2.y;
+	        
+	        // Пробуем переместить объекты
 	        obj1.x -= separateX;
 	        obj1.y -= separateY;
 	        obj2.x += separateX;
 	        obj2.y += separateY;
+	        
+	        // Проверяем коллизии с тайлами после перемещения
+	        if (checkTile(obj1)) {
+	            // Если возникла коллизия с тайлом, возвращаем первый объект на место
+	            obj1.x = oldX1;
+	            obj1.y = oldY1;
+	            // И перемещаем только второй объект
+	            obj2.x += separateX * 2;
+	            obj2.y += separateY * 2;
+	            
+	            // Проверяем второй объект на коллизии с тайлами
+	            if (checkTile(obj2)) {
+	                // Если и у второго коллизия, возвращаем оба на место
+	                obj2.x = oldX2;
+	                obj2.y = oldY2;
+	            }
+	        } else if (checkTile(obj2)) {
+	            // Если только у второго объекта коллизия с тайлом
+	            obj2.x = oldX2;
+	            obj2.y = oldY2;
+	            // Двигаем только первый объект
+	            obj1.x -= separateX * 2;
+	            obj1.y -= separateY * 2;
+	            
+	            if (checkTile(obj1)) {
+	                // Если и у первого коллизия, возвращаем оба на место
+	                obj1.x = oldX1;
+	                obj1.y = oldY1;
+	            }
+	        }
 	    }
+	    
+	    // Обновляем скорости объектов
+	    obj1.speed = (float) Math.sqrt(newV1x*newV1x + newV1y*newV1y);
+	    obj2.speed = (float) Math.sqrt(newV2x*newV2x + newV2y*newV2y);
 	}
+		
 }

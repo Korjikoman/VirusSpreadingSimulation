@@ -36,6 +36,23 @@ public class SPanel extends JPanel implements Runnable {
     // MAP
     public String mapFilePath = "/maps/map.txt";
     
+    // OBJECTS & PARAMETRES ///////////////////////////////////
+    
+    public int OBJECTS_NUM = 50;
+    public int INFECTED_NUM = 1;
+    public int IMMUNE_NUM = 0;
+    
+    public double INFECTED_PROBABILITY = 12; // %
+    public double REINFECTION_PROBABILITY = 16; // %
+    public double MORALITY = 20; //  %
+    public double VACCINE_EFFICIENCY =40; // 80% 
+    
+    ////////////////////////////////////////////////////////////
+    
+    
+    ArrayList<SimulationObject> objects = new ArrayList<>();
+    public double objectsVelocity = 2;
+    
     // FPS
     int FPS = 60;
     int recoverDelayMs = 3000; 
@@ -49,18 +66,16 @@ public class SPanel extends JPanel implements Runnable {
     public CollisionChecker cChecker = new CollisionChecker(this);
     
     
-    // OBJECTS
-    public int OBJECTS_NUM = 50;
-    ArrayList<SimulationObject> objects = new ArrayList<>();
-    public double objectsVelocity = 2;
+    
     
     public int infectedNum;
     public int healthyNum;
     public int immuneNum;
+    public int deadNum;
     
     // SIMULATION TIMER
-    private Timer simulationTimer;
-    private int simulationTIME = 20000;
+    public Timer simulationTimer;
+    public int simulationTIME = 10000;
     int elapsedTime=0;
     
     // CHARTS
@@ -69,7 +84,7 @@ public class SPanel extends JPanel implements Runnable {
     
     
     // DATA FOR CHARTS
-    List<int[]> dataPerSecond = new ArrayList<>();
+    List<double[]> dataPerSecond = new ArrayList<>();
     
     // 
     
@@ -90,18 +105,26 @@ public class SPanel extends JPanel implements Runnable {
     public void initializeWORLD() {
     	tileM.loadMap(mapFilePath);
     	
+    	// INITIALIZE IMMUNE OBJECT
+    	for (int i = 0; i < IMMUNE_NUM; i++) {
+    		double x_pos = Instruments.random_number(0, screenWidth - tileSize);
+    		double y_pos = Instruments.random_number(0, screenHeight - tileSize);
+            addObject(0, false, true, objectsVelocity);
+            infectedNum ++;
+    	}
     	// INITIALIZE INFECTED OBJECT
-        float x_pos = Instruments.random_number(0, screenWidth - tileSize);
-        float y_pos = Instruments.random_number(0, screenHeight - tileSize);
-        addObject(0, true, objectsVelocity);
+    	for (int i = 0; i < INFECTED_NUM; i++) {
+    		double x_pos = Instruments.random_number(0, screenWidth - tileSize);
+    		double y_pos = Instruments.random_number(0, screenHeight - tileSize);
+        addObject(0, true, false, objectsVelocity);
         infectedNum ++;
+    	}
         
-        
-        // INITIALIZE OBJECTS
-        for (int i = 1; i < OBJECTS_NUM; i++) {
-            float x_posit = Instruments.random_number(0, screenWidth - tileSize);
-            float y_posit = Instruments.random_number(0, screenHeight - tileSize);
-            addObject(i, false, objectsVelocity);
+        // INITIALIZE HEALTHY OBJECTS
+        for (int i = 1; i < OBJECTS_NUM - IMMUNE_NUM - INFECTED_NUM; i++) {
+        	double x_posit = Instruments.random_number(0, screenWidth - tileSize);
+        	double y_posit = Instruments.random_number(0, screenHeight - tileSize);
+            addObject(i, false, false, objectsVelocity);
             healthyNum++;
         }
         
@@ -110,7 +133,7 @@ public class SPanel extends JPanel implements Runnable {
     	simulationTimer = new Timer(1000, new ActionListener() {
     				@Override
     				public void actionPerformed(ActionEvent e) {
-    					dataPerSecond.add(new int[] {healthyNum, infectedNum, immuneNum});
+    					dataPerSecond.add(new double[] {healthyNum, infectedNum, immuneNum, deadNum});
     					
     					elapsedTime += 1000;
     					
@@ -120,14 +143,14 @@ public class SPanel extends JPanel implements Runnable {
     	
     }
 
-    public void addObject(int number, boolean is_infected, double objVelocity) {
-        float x_pos, y_pos;
+    public void addObject(int number, boolean is_infected, boolean is_immune, double objVelocity) {
+    	double x_pos, y_pos;
         SimulationObject object;
         // OBJECTS MUST NOT CREATE ON COLLISION ZONE --------------------- (!!! NOT EFFECTIVE ALGORITHM !!!)
         do {
             x_pos = Instruments.random_number(0, screenWidth - tileSize);
             y_pos = Instruments.random_number(0, screenHeight - tileSize);
-            object = new SimulationObject(this, (int)x_pos, (int)y_pos, tileSize, tileSize, number, is_infected, objVelocity);
+            object = new SimulationObject(this, (int)x_pos, (int)y_pos, tileSize, tileSize, number, is_infected, is_immune,  objVelocity);
         } while (cChecker.checkTile(object));
         ///////////////////////////////////////////////////////////////////////////////////////////////////
         
@@ -177,7 +200,7 @@ public class SPanel extends JPanel implements Runnable {
         double nextDrawTime = System.nanoTime() + drawInterval;
         
         while (running && elapsedTime <= simulationTIME) {
-        	System.out.println("ELAPSED_TIME = " + elapsedTime);
+        	//System.out.println("ELAPSED_TIME = " + elapsedTime);
             update();
             repaint();
             
@@ -201,7 +224,7 @@ public class SPanel extends JPanel implements Runnable {
         }
         simulationTimer.stop();
         // SAVE CHARTS
-        if (elapsedTime >= 21000) {
+        if (elapsedTime >= simulationTIME) {
         	System.out.println("SAVING CAUSE ELAPSED TIME == " + elapsedTime);
         	charts.saveDataInCharts(dataPerSecond, ControlPanel.chartsPath);
         }
@@ -218,7 +241,7 @@ public class SPanel extends JPanel implements Runnable {
     	int infected = 0;
         int healthy = 0;
         int immune = 0;
-        
+        int dead = 0;
         
         
         for (SimulationObject obj : objects) {
@@ -234,12 +257,16 @@ public class SPanel extends JPanel implements Runnable {
             else if (obj.healthy){
             	healthy += 1;
             }
+            else if (obj.dead) {
+            	dead += 1;
+            }
        
         }
-        System.out.println("HEALTHY "+ healthy + " INFECTED " + infected + " IMMUNE " + immune);
+        //System.out.println("HEALTHY "+ healthy + " INFECTED " + infected + " IMMUNE " + immune);
         infectedNum = infected;
         healthyNum = healthy;
         immuneNum = immune;
+        deadNum = dead;
     }
 
     public void paintComponent(Graphics g) {
