@@ -40,12 +40,12 @@ public class SPanel extends JPanel implements Runnable {
     
     public int OBJECTS_NUM = 50;
     public int INFECTED_NUM = 1;
-    public int IMMUNE_NUM = 0;
+    public int IMMUNE_NUM = 10;
     
-    public double INFECTED_PROBABILITY = 12; // %
-    public double REINFECTION_PROBABILITY = 16; // %
-    public double MORALITY = 20; //  %
-    public double VACCINE_EFFICIENCY =40; // 80% 
+    public double INFECTED_PROBABILITY = 20; // %
+    public double REINFECTION_PROBABILITY = 50; // %
+    public double MORALITY = 100; //  %
+    public double VACCINE_EFFICIENCY =80; // 80% 
     
     ////////////////////////////////////////////////////////////
     
@@ -253,16 +253,18 @@ public class SPanel extends JPanel implements Runnable {
             }
             else if (obj.immune) {
         		immune += 1;
+        		obj.stopRecover();
         	}
             else if (obj.healthy){
             	healthy += 1;
             }
             else if (obj.dead) {
             	dead += 1;
+            	 System.out.println(" DEAD ");
             }
        
         }
-        //System.out.println("HEALTHY "+ healthy + " INFECTED " + infected + " IMMUNE " + immune);
+        System.out.println("HEALTHY "+ healthy + " INFECTED " + infected + " IMMUNE " + immune + " DEAD " + dead);
         infectedNum = infected;
         healthyNum = healthy;
         immuneNum = immune;

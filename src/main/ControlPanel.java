@@ -96,6 +96,8 @@ public class ControlPanel extends JFrame implements ActionListener {
         
 
         restart(0);
+        // create charts directory
+        new File(chartsPath).mkdirs();
         
     }
     

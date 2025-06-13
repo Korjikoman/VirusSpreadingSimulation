@@ -179,7 +179,7 @@ public class CollisionChecker {
 	    	            	System.out.println("simulationObject.immune" + simulationObject.immune);
 	    	            	//System.out.println("Random num = " + randomNum1);
 	    	            }
-	    	            // если же у него иммунитет
+	    	            // если же у него иммунитет, а другой заражен
 	    	            else if (simulationObject.infected && other.immune) {
 	    	            	if (other.imSys.reInfect()) {
 	    	            		// заново заражаем челика
@@ -190,7 +190,7 @@ public class CollisionChecker {
 	    	            		
 	    	            	}
 	    	            }
-	    	         // если же у него иммунитет
+	    	         // если же у него иммунитет, а другой заражен
 	    	            else if (other.infected && simulationObject.immune) {
 	    	            	if (simulationObject.imSys.reInfect()) {
 	    	            		// заново заражаем челика

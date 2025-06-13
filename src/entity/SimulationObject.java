@@ -46,7 +46,61 @@ public class SimulationObject extends Entity{
     // IMMUNE SYSTEM
     public ImmuneSystem imSys;
     
+    public SimulationObject(SPanel sp, float x_pos, float y_pos, int obj_width, int obj_height, int num, boolean is_infected, boolean is_immune, double objVelocity) {
+        x = x_pos;
+        y = y_pos;
+        width = obj_width;
+        height = obj_height;
+        index = num;
+        infected = is_infected;
+        immune = is_immune;
+        healthy = true;
+        
+        speed = objVelocity;
+        
+        imSys = new ImmuneSystem(this);
+        
+        this.panel = sp;
+        
+        solidArea = new Rectangle(0,0,width,height);
+       
+        getObjectImage();
+        
+        angle = Instruments.random_number(0, 360);
+        //System.out.println("!!!!x = " + x + " y = " + y + " \n");
+        
+		
+     // FIRST AND LAST INITIALIZATION
+	timer = new Timer(2000, new ActionListener() {
+	    		
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					double random_num = Instruments.random_number(1, 100);
+					double death_num = Instruments.random_number(1, 100);
+					if (random_num <= (sp.VACCINE_EFFICIENCY)) {
+						//System.out.println("VACINATED " + (sp.VACCINE_EFFICIENCY * 100));
+	    				state = "immune";
+	        			infected = false;
+	        			immune = true; 
+	        			healthy = false;
+	        			imSys.sick();
+	        			}
+					else {
+						if (death_num * 2 <= sp.MORALITY) {
+							System.out.println("BAMBY");
+							System.out.println(" infected " + infected + " immune " + immune);
+							System.out.println("BAMBY");
+							infected = false;
+		        			immune = false; 
+		        			healthy = false;
+		        			dead = true;
+						}
+					}
+				}
+	    	});
 
+        
+    }
     
     
     public double getSpeed() {
@@ -124,6 +178,7 @@ public class SimulationObject extends Entity{
     	// умерший игрок не движется
     	else {
     		state = "dead";
+    		timer.stop();
     	}
     	
     	// Анимируем объект
@@ -139,58 +194,7 @@ public class SimulationObject extends Entity{
         }
     }
 
-    public SimulationObject(SPanel sp, float x_pos, float y_pos, int obj_width, int obj_height, int num, boolean is_infected, boolean is_immune, double objVelocity) {
-        x = x_pos;
-        y = y_pos;
-        width = obj_width;
-        height = obj_height;
-        index = num;
-        infected = is_infected;
-        immune = is_immune;
-        healthy = true;
-        
-        speed = objVelocity;
-        
-        imSys = new ImmuneSystem(this);
-        
-        this.panel = sp;
-        
-        solidArea = new Rectangle(0,0,width,height);
-       
-        getObjectImage();
-        
-        angle = Instruments.random_number(0, 360);
-        System.out.println("!!!!x = " + x + " y = " + y + " \n");
-        
-		
-     // FIRST AND LAST INITIALIZATION
-	timer = new Timer(2000, new ActionListener() {
-	    		
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					double random_num = Instruments.random_number(1, 100);
-					double death_num = Instruments.random_number(1, 100);
-					if (random_num <= (sp.VACCINE_EFFICIENCY)) {
-						//System.out.println("VACINATED " + (sp.VACCINE_EFFICIENCY * 100));
-	    				state = "immune";
-	        			infected = false;
-	        			immune = true; 
-	        			healthy = false;
-	        			imSys.sick();
-	        			}
-					else {
-						if (death_num * 2 <= sp.MORALITY) {
-							infected = false;
-		        			immune = false; 
-		        			healthy = false;
-		        			dead = true;
-						}
-					}
-				}
-	    	});
-
-        
-    }
+    
     
     public int getNum() {
     	return index;

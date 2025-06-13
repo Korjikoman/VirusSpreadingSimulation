@@ -88,23 +88,23 @@ public class Charts {
 	    // Create a matrix chart 
 		List<XYChart> charts = new ArrayList<XYChart>();
 		
-		healthyChart = QuickChart.getChart("Number of healthy objects", "Healthy", "Infected", "Healthy", new double[] { 0 }, new double[] { 0 });
+		healthyChart = QuickChart.getChart("Number of healthy objects", "Time", "Healthy", "Healthy", new double[] { 0 }, new double[] { 0 });
 		healthyChart.getStyler().setLegendVisible(false);
 		healthyChart.getStyler().setXAxisTicksVisible(false);	
 		healthyChart.getSeriesMap().get("Healthy").setLineColor(Color.ORANGE);
 		
 		
-	    infectedChart = QuickChart.getChart("Number of infected objects", "Infected", "Time", "Infected", new double[] { 0 }, new double[] { 0 });
+	    infectedChart = QuickChart.getChart("Number of infected objects", "Time", "Infected", "Infected", new double[] { 0 }, new double[] { 0 });
 	    infectedChart.getStyler().setLegendVisible(false);
 	    infectedChart.getStyler().setXAxisTicksVisible(false);	
 	    infectedChart.getSeriesMap().get("Infected").setLineColor(Color.GREEN);
 	    
-	    immuneChart = QuickChart.getChart("Number of immune objects", "Immune", "Time", "Immune", new double[] { 0 }, new double[] { 0 });
+	    immuneChart = QuickChart.getChart("Number of immune objects", "Time", "Immune", "Immune", new double[] { 0 }, new double[] { 0 });
 	    immuneChart.getStyler().setLegendVisible(false);
 	    immuneChart.getStyler().setXAxisTicksVisible(false);	
 	    immuneChart.getSeriesMap().get("Immune").setLineColor(Color.BLUE);
 	
-	    deathChart = QuickChart.getChart("Number of dead objects", "Dead", "Time", "Dead", new double[] { 0 }, new double[] { 0 });
+	    deathChart = QuickChart.getChart("Number of dead objects", "Time", "Dead", "Dead", new double[] { 0 }, new double[] { 0 });
 	    deathChart.getStyler().setLegendVisible(false);
 	    deathChart.getStyler().setXAxisTicksVisible(false);	
 	    deathChart.getSeriesMap().get("Dead").setLineColor(Color.BLACK);
