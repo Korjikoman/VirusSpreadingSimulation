@@ -14,7 +14,7 @@ public class MainScreen {
     private ControlPanel cp;
 
     public MainScreen() {
-
+    	// создаем панель управления
         cp = new ControlPanel();
     }
 

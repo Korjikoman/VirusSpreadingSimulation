@@ -22,54 +22,46 @@ import javax.swing.SpinnerNumberModel;
 
 import charts.Charts;
 
+/**
+ * Главный класс панели управления симуляцией.
+ * Отвечает за запуск, управление, настройки и отображение графиков.
+ */
 public class ControlPanel extends JFrame implements ActionListener {
 	
-	// SPanel SETTINGS
+	// Панель симуляции
     private SPanel sp;
-    private JFrame frame;
-    private static String TITLE = "Some title";
-    public static String chartsPath = System.getProperty("user.dir") + "\\res\\charts\\";
-    
-    
-    // BUTTONS
-    private JButton btnStart;
-    private JButton btnSettings;
-    private JButton btnStop;
-    private JButton btnResume;
-    private JButton btnCharts;
-    private JButton btnSaved;
-    private JButton btnApply;
-    private JButton btnReset;
-    
-    // 
-    int chartsPressed = 0;
-    
-    // SETTINGS DATA /////////////////////////////////////////
-    private JFrame settingsFrame;
-    
-    // sliders
-    JSlider slCount;
-    JSlider slImmune;
-    JSlider slInfected;
-    JSlider slSpeed;
-    JSlider slInfectionChance;
-    JSlider slReinfectionChance;
-    JSlider slMortality;
-    JSlider slVaccineEffectiveness;
-    JSlider slSimulationTime;
-    
-    
-    // checkbox 
-    JCheckBox cbBorders;
 
+    // Главное окно
+    private JFrame frame;
+
+    // Заголовок окна симуляции
+    private static String TITLE = "Some title";
+
+    // Путь для сохранения графиков
+    public static String chartsPath = System.getProperty("user.dir") + "\\res\\charts\\";
+
+    // Кнопки управления
+    private JButton btnStart, btnSettings, btnStop, btnResume, btnCharts, btnSaved, btnApply, btnReset;
+
+    // Счётчик нажатий кнопки графика
+    int chartsPressed = 0;
+
+    // Окно настроек
+    private JFrame settingsFrame;
+
+    // Слайдеры
+    JSlider slCount, slImmune, slInfected, slSpeed,
+            slInfectionChance, slReinfectionChance, slMortality,
+            slVaccineEffectiveness, slSimulationTime;
+
+    // Чекбоксы
+    JCheckBox cbBorders;
     JCheckBox cbFullIsolation;
-    
-    //////////////////
-    
+
+    // Дополнительные параметры
     int objectsNum;
     double objectsVelocity;
     int mapNum = 1;
-  
 
     public ControlPanel() {
     
@@ -84,6 +76,7 @@ public class ControlPanel extends JFrame implements ActionListener {
         btnStart = createButton("Начать симуляцию", 50, 20, 200, 50);
         btnSettings = createButton("Настройки", 50, 90, 200, 50);
         btnStop = createButton("Стоп", 50, 160, 200, 50);
+        btnStop.setEnabled(false);
         btnResume = createButton("Возобновить", 50, 160, 200, 50);
         btnResume.setVisible(false);
         btnResume.setEnabled(false);
@@ -146,6 +139,9 @@ public class ControlPanel extends JFrame implements ActionListener {
         return btn;
     }
 
+    /**
+     * Обработка действий пользователя
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == btnSettings) {
@@ -161,6 +157,7 @@ public class ControlPanel extends JFrame implements ActionListener {
             
         	btnSettings.setEnabled(false);
         	btnStart.setEnabled(false);
+        	btnStop.setEnabled(true);
         	
         }
         else if (e.getSource()  == btnStop) {
@@ -203,6 +200,7 @@ public class ControlPanel extends JFrame implements ActionListener {
         	restart(1);
         	btnSettings.setEnabled(true);
         	btnStart.setEnabled(true);
+        	btnStop.setEnabled(false);
         	}catch(NullPointerException ex) { 
         		System.out.println("START THE SIMULATION!");
         	}
@@ -247,7 +245,10 @@ public class ControlPanel extends JFrame implements ActionListener {
         
     }
 
-    // SETTINGS WINDOW
+   
+    /**
+     * Открытие окна настроек
+     */
     private void openSettingsWindow() {
         settingsFrame = new JFrame("Настройки");
         settingsFrame.setSize(450, 600);
@@ -330,7 +331,9 @@ public class ControlPanel extends JFrame implements ActionListener {
     }
 
     
-    // RECREATING PANEL WITH SIMULATION
+    /**
+     * Применение настроек из панели и обновление параметров симуляции
+     */
     private void recreateSPanel() {
  
     	sp.OBJECTS_NUM = (int)slCount.getValue();

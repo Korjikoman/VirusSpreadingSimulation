@@ -101,7 +101,9 @@ public class SPanel extends JPanel implements Runnable {
 
     }
         
-       
+     /*
+      *  Инициализация мира: карта + объекты
+      */
     public void initializeWORLD() {
     	tileM.loadMap(mapFilePath);
     	
@@ -142,7 +144,10 @@ public class SPanel extends JPanel implements Runnable {
     	    	});
     	
     }
-
+    
+    /*
+     * Добавление объекта в симуляцию с проверкой на столкновение с тайлами
+     */
     public void addObject(int number, boolean is_infected, boolean is_immune, double objVelocity) {
     	double x_pos, y_pos;
         SimulationObject object;
@@ -161,6 +166,9 @@ public class SPanel extends JPanel implements Runnable {
     	return objects;
     }
     
+    /*
+     * Запуск симуляции
+     */
     public void startThread() {
     	
     	// INIT OBJECTS AND MAP
@@ -179,11 +187,17 @@ public class SPanel extends JPanel implements Runnable {
 
     }
     
+    /*
+     * Остановка симуляции
+     */
     public void stopSimulation() {
         running = false;
         
     }
     
+    /*
+     * Возобновление симуляции
+     */
     public void runSimulation() {
         running = true;
         simulationTimer.start();
@@ -192,7 +206,10 @@ public class SPanel extends JPanel implements Runnable {
         
     }
     
-
+    
+    /*
+     * Переопределения метода, который и будет двигать и отрисовывать объекты
+     */
     @Override
     public void run() {
     	
@@ -236,7 +253,9 @@ public class SPanel extends JPanel implements Runnable {
     }
         
 
-
+    /*
+     * Обновление состояния всех объектов симуляции
+     */
     public void update() {
     	int infected = 0;
         int healthy = 0;
@@ -271,6 +290,9 @@ public class SPanel extends JPanel implements Runnable {
         deadNum = dead;
     }
 
+    /*
+     * Метод отрисовки (вызов отрисовки карты и объектов)
+     */
     public void paintComponent(Graphics g) {
 
         super.paintComponent(g);

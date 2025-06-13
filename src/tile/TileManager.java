@@ -11,11 +11,14 @@ import javax.imageio.ImageIO;
 
 import main.SPanel;
 
+/*
+ * Класс для управления тайлами — загрузка карт, изображений и отрисовк
+ */
 public class TileManager {
-	SPanel panel;
-	public Tile[] tile;
-	public int mapTileNum[][];
-	private static final int TILE_NUM = 10; 
+	SPanel panel; // Ссылка на основной панель с параметрами экрана и настройками
+	public Tile[] tile; // Массив тайлов (каждый содержит изображение и коллизию)
+	public int mapTileNum[][];// Двумерный массив индексов тайлов для карты (номер тайла в каждой ячейке)
+	private static final int TILE_NUM = 10; // Макс количество различных тайлов
 	
 	
 	public TileManager(SPanel sp) {
@@ -32,7 +35,9 @@ public class TileManager {
 	
 	
 	
-	
+	/*
+	 * Метод загрузки карты из файла
+	 */
 	public void loadMap(String filePath) {
 		System.out.println("LOADING MAP --> " + filePath);
 		try {
@@ -66,7 +71,9 @@ public class TileManager {
 		
 		
 	}
-	
+	/*
+	 * Метод загрузки изображений тайлов
+	 */
 	public void getTileImage() {
 		try {
 			tile[0] = new Tile();
@@ -80,7 +87,9 @@ public class TileManager {
 			e.printStackTrace();
 		}
 	}
-	
+	/*
+	 * Метод отрисовки карты тайлов на экране
+	 */
 	public void draw(Graphics2D g2) {
 		
 		int col = 0;
